@@ -1,0 +1,30 @@
+{
+  "name": "actual-budget-cli",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "",
+  "main": "./app.mjs",
+  "scripts": {
+    "set-env": "export $(cat .env | grep \"^[^#;]\" |xargs)"
+  },
+  "keywords": [
+    "cli",
+    "budget",
+    "actual-app"
+  ],
+  "author": "Dominik Schröder (https://n.ethz.ch/~dschroeder)",
+  "license": "MIT",
+  "bin": {
+    "actual-budget-cli": "./app.mjs"
+  },
+  "dependencies": {
+    "@actual-app/api": "^6.6.0",
+    "@inquirer/prompts": "^4.1.0",
+    "@krakz999/tabula-node": "^1.0.6",
+    "d3": "^7.8.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "prettier": "3.2.5"
+  }
+}
