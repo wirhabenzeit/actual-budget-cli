@@ -14,21 +14,23 @@ const asyncExec = util.promisify(exec);
 export async function parseDKB(path) {
   const csv = (await fs.readFile(path, "utf8")).split("\n").slice(4).join("\n");
   const transactions = d3.dsvFormat(";").parse(csv, (d) => {
-    var entry = {
-      date: d3.timeFormat("%Y-%m-%d")(
-        d3.timeParse("%d.%m.%y")(d["Wertstellung"])
-      ),
-      notes: d["Verwendungszweck"],
-    };
-    if (d["Umsatztyp"] == "Eingang") {
-      entry.payee_name = d["Zahlungspflichtige*r"];
-      entry.amount = Math.round(parseFloat(d["Betrag (€)"]) * 100);
+    if (d["Wertstellung"] != "") {
+      var entry = {
+        date: d3.timeFormat("%Y-%m-%d")(
+          d3.timeParse("%d.%m.%y")(d["Wertstellung"])
+        ),
+        notes: d["Verwendungszweck"],
+      };
+      if (d["Umsatztyp"] == "Eingang") {
+        entry.payee_name = d["Zahlungspflichtige*r"];
+      }
+      else {
+        entry.payee_name = d["Zahlungsempfänger*in"];
+      }
+      entry.amount = Math.round(parseFloat(d["Betrag (€)"].replace(".", "").replace(",", ".")) * 100);
+      return entry;
     }
-    else {
-      entry.payee_name = d["Zahlungsempfänger*in"];
-      entry.amount = Math.round(parseFloat(d["Betrag (€)"]) * 100);
-    }
-    return entry;
+    return null;
   })
   return transactions;
 }
@@ -45,6 +47,7 @@ export async function parseZKB(path) {
       sign = d["Credit CHF"] != "" ? 1 : -1;
     }
     if (
+      d["Booking text"].startsWith("Debit eBanking (") ||
       d["Booking text"].startsWith("Debit eBanking Mobile (") ||
       d["Booking text"].startsWith("Credit eBanking Mobile (") ||
       d["Booking text"].startsWith("Debit Standing order (")
